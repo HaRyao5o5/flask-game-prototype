@@ -10,44 +10,91 @@
 <div class="container">
     <h1>✊✌️✋ じゃんけんゲーム</h1>
 
+    <div class="mode-switch">
+        <a href="{{ url_for('set_mode', level='normal') }}"
+           class="mode-btn {{ 'active' if mode == 'normal' }}">通常</a>
+        <a href="{{ url_for('set_mode', level='easy') }}"
+           class="mode-btn {{ 'active' if mode == 'easy' }}">かんたん</a>
+        <a href="{{ url_for('rules') }}" class="mode-btn">ルール</a>
+    </div>
+
     <div class="scoreboard">
         <div class="score-item win"><span>{{ score.win }}</span>勝ち</div>
         <div class="score-item lose"><span>{{ score.lose }}</span>負け</div>
         <div class="score-item draw"><span>{{ score.draw }}</span>あいこ</div>
     </div>
 
-    {% if result %}
-    <div class="battle-area">
-        <div class="hand-box">
-            <p>あなた</p>
-            <canvas id="playerCanvas" width="150" height="150"></canvas>
-        </div>
-        <div class="vs">VS</div>
-        <div class="hand-box">
-            <p>CPU</p>
-            <canvas id="cpuCanvas" width="150" height="150"></canvas>
-        </div>
+    <div class="set-progress">
+        現在のセット：あなた {{ set_wins.player }} - {{ set_wins.cpu }} CPU
+        （{{ target }}本先取）
     </div>
 
-    <div class="result-banner {{ result }}">
-        {% if result == "win" %}あなたの勝ち！🎉
-        {% elif result == "lose" %}あなたの負け...😢
-        {% else %}あいこ🤝
+    {% if match_winner %}
+    <div class="match-banner {{ 'win' if match_winner == 'player' else 'lose' }}">
+        {% if match_winner == 'player' %}
+            🏆 試合に勝利しました！
+        {% else %}
+            😢 試合に敗北しました…
         {% endif %}
+    </div>
+    <a href="{{ url_for('new_match') }}" class="hand-btn new-match-btn">新しい試合を始める</a>
+
+    {% else %}
+
+        {% if result %}
+        <div class="battle-area">
+            <div class="hand-box">
+                <p>あなた</p>
+                <canvas id="playerCanvas" width="150" height="150"></canvas>
+            </div>
+            <div class="vs">VS</div>
+            <div class="hand-box">
+                <p>CPU</p>
+                <canvas id="cpuCanvas" width="150" height="150"></canvas>
+            </div>
+        </div>
+
+        <div class="result-banner {{ result }}">
+            {% if result == "win" %}あなたの勝ち！🎉
+            {% elif result == "lose" %}あなたの負け...😢
+            {% else %}あいこ🤝
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/play" class="hand-form">
+            <button type="submit" name="hand" value="rock" class="hand-btn">✊<br>グー</button>
+            <button type="submit" name="hand" value="scissors" class="hand-btn">✌️<br>チョキ</button>
+            <button type="submit" name="hand" value="paper" class="hand-btn">✋<br>パー</button>
+        </form>
+
+    {% endif %}
+
+    {% if history %}
+    <div class="history">
+        <p class="history-title">対戦履歴</p>
+        <ul class="history-list">
+            {% for record in history %}
+            <li class="history-item {{ record.result }}">
+                {{ hand_labels[record.player_hand] }}
+                vs
+                {{ hand_labels[record.cpu_hand] }}
+                →
+                {% if record.result == "win" %}勝ち
+                {% elif record.result == "lose" %}負け
+                {% else %}あいこ
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
     </div>
     {% endif %}
 
-    <form method="POST" action="/play" class="hand-form">
-        <button type="submit" name="hand" value="rock" class="hand-btn">✊<br>グー</button>
-        <button type="submit" name="hand" value="scissors" class="hand-btn">✌️<br>チョキ</button>
-        <button type="submit" name="hand" value="paper" class="hand-btn">✋<br>パー</button>
-    </form>
-
-    <a href="/reset" class="reset-link">スコアをリセット</a>
+    <a href="{{ url_for('reset') }}" class="reset-link">スコア・履歴をすべてリセット</a>
 </div>
 
 <script src="{{ url_for('static', filename='game.js') }}"></script>
-{% if result %}
+{% if result and not match_winner %}
 <script>
     drawHand('playerCanvas', '{{ player_hand }}');
     drawHand('cpuCanvas', '{{ cpu_hand }}');

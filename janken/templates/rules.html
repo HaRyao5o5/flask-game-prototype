@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ルール - じゃんけんゲーム</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h1>📜 ルール説明</h1>
+
+    <ul class="rules-list">
+        <li>✊グーは✌️チョキに勝ち、✌️チョキは✋パーに勝ち、✋パーは✊グーに勝ちます。</li>
+        <li>先に3勝したプレイヤー（あなたまたはCPU）がその試合の勝者です。</li>
+        <li>「かんたん」モードでは、CPUがやや負けやすい手を選ぶ確率が上がります。</li>
+        <li>対戦履歴は直近10件まで表示されます。</li>
+    </ul>
+
+    <a href="{{ url_for('index') }}" class="reset-link">ゲームに戻る</a>
+</div>
+
+</body>
+</html>
