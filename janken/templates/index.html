@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>じゃんけん</title>
+</head>
+<body>
+    <h1>じゃんけんゲーム</h1>
+
+    <form action="/play" method="POST">
+        <button type="submit" name="hand" value="rock">グー</button>
+        <button type="submit" name="hand" value="scissors">チョキ</button>
+        <button type="submit" name="hand" value="paper">パー</button>
+    </form>
+
+    {% if result %}
+        <p>あなた: {{ player_hand }} / CPU: {{ cpu_hand }}</p>
+        {% if result == "win" %}
+            <p>あなたの勝ち！</p>
+        {% elif result == "lose" %}
+            <p>あなたの負け...</p>
+        {% else %}
+            <p>あいこ</p>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
