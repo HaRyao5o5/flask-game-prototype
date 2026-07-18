@@ -212,3 +212,25 @@ h1 {
     font-size: 0.9rem;
     color: #ddd;
 }
+
+.habit-note {
+    font-size: 0.75rem;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+}
+
+.battle-area {
+    position: relative;
+}
+
+.effect-canvas {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 5;
+}

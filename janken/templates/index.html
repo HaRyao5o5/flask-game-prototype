@@ -15,8 +15,19 @@
            class="mode-btn {{ 'active' if mode == 'normal' }}">通常</a>
         <a href="{{ url_for('set_mode', level='easy') }}"
            class="mode-btn {{ 'active' if mode == 'easy' }}">かんたん</a>
+        <a href="{{ url_for('set_mode', level='hard') }}"
+           class="mode-btn {{ 'active' if mode == 'hard' }}">くせ読み</a>
         <a href="{{ url_for('rules') }}" class="mode-btn">ルール</a>
     </div>
+
+    {% if mode == 'hard' %}
+    <div class="habit-note">
+        ⚠️ くせ読みモード：あなたの手の傾向をCPUが分析しています
+        {% if predicted %}
+            （現在の予測：{{ hand_labels[predicted] }}）
+        {% endif %}
+    </div>
+    {% endif %}
 
     <div class="scoreboard">
         <div class="score-item win"><span>{{ score.win }}</span>勝ち</div>
@@ -43,6 +54,7 @@
 
         {% if result %}
         <div class="battle-area">
+            <canvas id="effectCanvas" class="effect-canvas" width="380" height="150"></canvas>
             <div class="hand-box">
                 <p>あなた</p>
                 <canvas id="playerCanvas" width="150" height="150"></canvas>
@@ -90,14 +102,13 @@
     </div>
     {% endif %}
 
-    <a href="{{ url_for('reset') }}" class="reset-link">スコア・履歴をすべてリセット</a>
+    <a href="{{ url_for('reset') }}" class="reset-link">スコア・履歴・くせデータをすべてリセット</a>
 </div>
 
 <script src="{{ url_for('static', filename='game.js') }}"></script>
 {% if result and not match_winner %}
 <script>
-    drawHand('playerCanvas', '{{ player_hand }}');
-    drawHand('cpuCanvas', '{{ cpu_hand }}');
+    playBattleAnimation('{{ player_hand }}', '{{ cpu_hand }}', '{{ result }}');
 </script>
 {% endif %}
 
