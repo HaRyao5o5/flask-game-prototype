@@ -1,28 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>じゃんけん</title>
+<meta charset="UTF-8">
+<title>じゃんけんゲーム</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <h1>じゃんけんゲーム</h1>
 
-    <form action="/play" method="POST">
-        <button type="submit" name="hand" value="rock">グー</button>
-        <button type="submit" name="hand" value="scissors">チョキ</button>
-        <button type="submit" name="hand" value="paper">パー</button>
-    </form>
+<div class="container">
+    <h1>✊✌️✋ じゃんけんゲーム</h1>
+
+    <div class="scoreboard">
+        <div class="score-item win"><span>{{ score.win }}</span>勝ち</div>
+        <div class="score-item lose"><span>{{ score.lose }}</span>負け</div>
+        <div class="score-item draw"><span>{{ score.draw }}</span>あいこ</div>
+    </div>
 
     {% if result %}
-        <p>あなた: {{ player_hand }} / CPU: {{ cpu_hand }}</p>
-        {% if result == "win" %}
-            <p>あなたの勝ち！</p>
-        {% elif result == "lose" %}
-            <p>あなたの負け...</p>
-        {% else %}
-            <p>あいこ</p>
+    <div class="battle-area">
+        <div class="hand-box">
+            <p>あなた</p>
+            <canvas id="playerCanvas" width="150" height="150"></canvas>
+        </div>
+        <div class="vs">VS</div>
+        <div class="hand-box">
+            <p>CPU</p>
+            <canvas id="cpuCanvas" width="150" height="150"></canvas>
+        </div>
+    </div>
+
+    <div class="result-banner {{ result }}">
+        {% if result == "win" %}あなたの勝ち！🎉
+        {% elif result == "lose" %}あなたの負け...😢
+        {% else %}あいこ🤝
         {% endif %}
+    </div>
     {% endif %}
+
+    <form method="POST" action="/play" class="hand-form">
+        <button type="submit" name="hand" value="rock" class="hand-btn">✊<br>グー</button>
+        <button type="submit" name="hand" value="scissors" class="hand-btn">✌️<br>チョキ</button>
+        <button type="submit" name="hand" value="paper" class="hand-btn">✋<br>パー</button>
+    </form>
+
+    <a href="/reset" class="reset-link">スコアをリセット</a>
+</div>
+
+<script src="{{ url_for('static', filename='game.js') }}"></script>
+{% if result %}
+<script>
+    drawHand('playerCanvas', '{{ player_hand }}');
+    drawHand('cpuCanvas', '{{ cpu_hand }}');
+</script>
+{% endif %}
+
 </body>
 </html>
