@@ -11,14 +11,14 @@
     <h1>✊✌️✋ じゃんけんゲーム</h1>
 
     <div class="mode-switch">
-        <a href="{{ url_for('set_mode', level='normal') }}"
-           class="mode-btn {{ 'active' if mode == 'normal' }}">通常</a>
-        <a href="{{ url_for('set_mode', level='easy') }}"
-           class="mode-btn {{ 'active' if mode == 'easy' }}">かんたん</a>
-        <a href="{{ url_for('set_mode', level='hard') }}"
-           class="mode-btn {{ 'active' if mode == 'hard' }}">くせ読み</a>
-        <a href="{{ url_for('rules') }}" class="mode-btn">ルール</a>
-    </div>
+    <a href="{{ url_for('set_mode', level='normal') }}"
+        class="mode-btn {{ 'active' if mode == 'normal' else '' }}">通常</a>
+    <a href="{{ url_for('set_mode', level='easy') }}"
+        class="mode-btn {{ 'active' if mode == 'easy' else '' }}">かんたん</a>
+    <a href="{{ url_for('set_mode', level='hard') }}"
+        class="mode-btn {{ 'active' if mode == 'hard' else '' }}">くせ読み</a>
+    <a href="{{ url_for('rules') }}" class="mode-btn">ルール</a>
+</div>
 
     {% if mode == 'hard' %}
     <div class="habit-note">

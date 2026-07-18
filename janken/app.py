@@ -1,6 +1,6 @@
 import os
 from flask import Flask, render_template, request, session, redirect, url_for
-from game_logic import judge, cpu_choice, match_winner, predict_player_hand
+from game_logic import HANDS, judge, cpu_choice, match_winner, predict_player_hand
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)  # プロトタイプ用。再起動するとセッションはリセットされる
@@ -8,6 +8,7 @@ app.secret_key = os.urandom(24)  # プロトタイプ用。再起動するとセ
 EMPTY_SCORE = {"win": 0, "lose": 0, "draw": 0}
 EMPTY_SET_WINS = {"player": 0, "cpu": 0}
 EMPTY_HAND_COUNTS = {"rock": 0, "scissors": 0, "paper": 0}
+VALID_MODES = ("normal", "easy", "hard")
 TARGET_WINS = 3
 HISTORY_LIMIT = 10
 
@@ -19,6 +20,7 @@ HAND_LABELS = {
 
 
 def init_session():
+    """セッションに必要なキーが無ければ初期値を設定する"""
     session.setdefault("score", dict(EMPTY_SCORE))
     session.setdefault("set_wins", dict(EMPTY_SET_WINS))
     session.setdefault("history", [])
@@ -27,6 +29,7 @@ def init_session():
 
 
 def render_index(**extra):
+    """トップページ描画に必要なデータをまとめてテンプレートへ渡す"""
     predicted = None
     if session["mode"] == "hard":
         predicted = predict_player_hand(session["hand_counts"])
@@ -54,7 +57,7 @@ def index():
 @app.route("/mode/<level>")
 def set_mode(level):
     init_session()
-    if level in ("easy", "normal", "hard"):
+    if level in VALID_MODES:
         session["mode"] = level
         session.modified = True
     return redirect(url_for("index"))
@@ -64,10 +67,15 @@ def set_mode(level):
 def play():
     init_session()
 
+    # すでに決着している場合は新しい手を受け付けない
     if match_winner(session["set_wins"], TARGET_WINS):
         return redirect(url_for("index"))
 
-    player_hand = request.form["hand"]
+    # 不正なリクエスト対策：handが無い、またはHANDS以外の値ならトップに戻す
+    player_hand = request.form.get("hand")
+    if player_hand not in HANDS:
+        return redirect(url_for("index"))
+
     cpu_hand = cpu_choice(
         mode=session["mode"],
         player_hand=player_hand,
@@ -90,7 +98,7 @@ def play():
         "result": result,
     })
     session["history"] = history[:HISTORY_LIMIT]
-    session.modified = True
+    session.modified = True  # 辞書・リストを直接書き換えた場合に必要
 
     return render_index(
         result=result,
