@@ -8,7 +8,7 @@
 {% endif %}
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body data-result="{% if winner == 'black' %}win{% elif winner == 'white' %}lose{% elif winner == 'draw' %}draw{% endif %}">
 
 <h1>オセロ</h1>
 
@@ -71,6 +71,8 @@
 
 <a href="{{ url_for('othello_reset') }}" class="reset-link">最初からやり直す</a>
 <a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+<script src="{{ url_for('static', filename='effects.js') }}"></script>
 
 </body>
 </html>

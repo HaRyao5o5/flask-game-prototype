@@ -325,3 +325,52 @@ h1 {
     color: #a0aec0;
     text-align: center;
 }
+
+/* ----- 結果バナーのポップイン ----- */
+.result-banner {
+    animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bounce-in {
+    from {
+        transform: scale(0.3);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ----- ○×ゲームの記号ポップイン ----- */
+.mark {
+    display: inline-block;
+    animation: pop-in 0.25s ease;
+}
+
+/* pop-in はオセロ用にすでに定義済みなら重複させないこと */
+
+/* ----- 数字当ての最新行ハイライト ----- */
+.latest-row {
+    animation: fade-in-row 1.2s ease;
+}
+
+@keyframes fade-in-row {
+    from {
+        background: rgba(79, 209, 197, 0.25);
+    }
+    to {
+        background: transparent;
+    }
+}
+
+@keyframes pop-in {
+    from {
+        transform: scale(0.5);
+        opacity: 0.4;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
