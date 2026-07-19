@@ -42,7 +42,7 @@ def tictactoe_move():
         winner = tt.check_winner(board)
 
         if winner is None:
-            cpu_row, cpu_col = tt.cpu_move(board, difficulty="easy")
+            cpu_row, cpu_col = tt.cpu_move(board, difficulty="normal")
             tt.place_mark(board, cpu_row, cpu_col, "O")
             winner = tt.check_winner(board)
 
@@ -92,7 +92,7 @@ def numeron_guess():
     session['nm_error'] = None
 
     player_eat, player_bite = nm.judge(session['nm_cpu_secret'], player_guess)
-    cpu_guessed = nm.cpu_guess(difficulty="easy")
+    cpu_guessed = nm.cpu_guess(difficulty="normal", history=session['nm_history'])
     cpu_eat, cpu_bite = nm.judge(session['nm_player_secret'], cpu_guessed)
 
     history = session['nm_history']
@@ -149,7 +149,7 @@ def othello_advance_step():
         return
 
     if current_color == ot.WHITE:
-        row, col = ot.cpu_move(board, ot.WHITE, difficulty="easy")
+        row, col = ot.cpu_move(board, ot.WHITE, difficulty="normal")
         ot.place_and_flip(board, row, col, ot.WHITE)
         messages.append(f"CPUは {ot.to_notation(row, col)} に置きました")
         session['othello_board'] = board

@@ -1,4 +1,5 @@
 import random
+from itertools import permutations
 
 def generate_secret_number():
     """
@@ -38,12 +39,24 @@ def judge(secret, guess):
 
     return eat, bite
 
+def _all_candidates():
+    """重複しない3桁の数字を全パターン列挙する（720通り）"""
+    return ["".join(str(d) for d in p) for p in permutations(range(10), 3)]
+
 def cpu_guess(difficulty="easy", history=None):
-    """
-    CPUの予想を決める。今はeasyのみ実装（重複なしのランダムな3桁）
-    historyは今後「これまでの結果を踏まえて絞り込む」CPUを作る時のための引数
-    """
-    if difficulty == "easy":
-        return generate_secret_number()  # ランダム生成のロジックを予想生成に流用
-    else:
+    if difficulty == "easy" or not history:
         return generate_secret_number()
+
+    # これまでのCPU自身の予想と結果に矛盾しない候補だけに絞り込む
+    candidates = _all_candidates()
+    for turn in history:
+        past_guess = turn['cpu_guess']
+        past_eat = turn['cpu_eat']
+        past_bite = turn['cpu_bite']
+        candidates = [c for c in candidates if judge(c, past_guess) == (past_eat, past_bite)]
+
+    if candidates:
+        return random.choice(candidates)
+
+    # 万が一候補が0件になった場合の保険（通常は起きないはず）
+    return generate_secret_number()

@@ -14,6 +14,15 @@ DIRECTIONS = [
 
 COLUMN_LETTERS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
 
+CORNERS = [(0, 0), (0, 7), (7, 0), (7, 7)]
+
+CORNER_ADJACENT = {
+    (0, 0): [(0, 1), (1, 0), (1, 1)],
+    (0, 7): [(0, 6), (1, 7), (1, 6)],
+    (7, 0): [(6, 0), (7, 1), (6, 1)],
+    (7, 7): [(6, 7), (7, 6), (6, 6)],
+}
+
 def create_board():
     """8x8の盤面を作り、中央4マスに初期配置をセットする"""
     board = [[EMPTY for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
@@ -113,11 +122,15 @@ def judge_winner(board):
     else:
         return "draw"
 
+def _danger_cells(board):
+    """角がまだ空いている場合、その隣接マスを危険マスとして返す"""
+    danger = []
+    for corner, cells in CORNER_ADJACENT.items():
+        if board[corner[0]][corner[1]] == EMPTY:
+            danger.extend(cells)
+    return danger
+
 def cpu_move(board, color, difficulty="easy"):
-    """
-    CPUの手を決める。有効な手の中からdifficultyに応じて選ぶ。
-    置ける場所が無い場合はNoneを返す（＝パス）
-    """
     valid_moves = get_valid_moves(board, color)
 
     if not valid_moves:
@@ -125,9 +138,10 @@ def cpu_move(board, color, difficulty="easy"):
 
     if difficulty == "easy":
         return random.choice(valid_moves)
+    elif difficulty == "normal":
+        return _cpu_move_normal(board, valid_moves, color)
     else:
-        # 未実装の難易度は easy にフォールバック
-        return random.choice(valid_moves)
+        return _cpu_move_normal(board, valid_moves, color)
 
 def to_notation(row, col):
     """
@@ -140,3 +154,32 @@ def to_notation(row, col):
 def to_notation(row, col):
     """(row, col) を "C4" のようなオセロ表記に変換する"""
     return f"{COLUMN_LETTERS[col]}{row + 1}"
+
+def _cpu_move_normal(board, valid_moves, color):
+    """
+    優先順位:
+    1. 角が置ける状態なら必ず取る
+    2. 危険マス（角の隣）はできるだけ避ける
+    3. その中で、最もたくさんひっくり返せる手を選ぶ
+    """
+    # 1. 角を最優先
+    for move in valid_moves:
+        if move in CORNERS:
+            return move
+
+    danger = _danger_cells(board)
+    safe_moves = [move for move in valid_moves if move not in danger]
+
+    # 2. 危険マスを避けた手があれば、その中から選ぶ。無ければ仕方なく全体から選ぶ
+    candidates = safe_moves if safe_moves else valid_moves
+
+    # 3. ひっくり返せる石の数が最大の手を選ぶ
+    best_move = None
+    best_count = -1
+    for move in candidates:
+        flippable = get_flippable_cells(board, move[0], move[1], color)
+        if len(flippable) > best_count:
+            best_count = len(flippable)
+            best_move = move
+
+    return best_move

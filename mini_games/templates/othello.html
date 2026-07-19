@@ -18,16 +18,17 @@
 
 <table class="othello-board">
     <tr>
-        <th class="coord-label"></th>
+        <th class="row-label"></th>
         {% for letter in columns %}
-        <th class="coord-label">{{ letter }}</th>
+        <th class="col-label">{{ letter }}</th>
         {% endfor %}
     </tr>
     {% for row in range(8) %}
     <tr>
-        <th class="coord-label">{{ row + 1 }}</th>
+        <th class="row-label">{{ row + 1 }}</th>
         {% for col in range(8) %}
         <td>
+            <div class="cell-inner">
             {% if board[row][col] == "black" %}
                 <span class="stone black"></span>
             {% elif board[row][col] == "white" %}
@@ -43,6 +44,7 @@
                     <button type="submit" class="cell-btn hint"></button>
                 </form>
             {% endif %}
+            </div>
         </td>
         {% endfor %}
     </tr>
