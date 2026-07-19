@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ミニゲーム集</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>ミニゲーム集</h1>
+<p class="rule-text">遊びたいゲームを選んでね</p>
+
+<div class="game-list">
+    <a href="{{ url_for('tictactoe') }}" class="game-card">
+        <span class="game-card-icon">⭕</span>
+        <span class="game-card-title">○×ゲーム</span>
+        <span class="game-card-desc">シンプルな三目並べ</span>
+    </a>
+
+    <a href="{{ url_for('numeron') }}" class="game-card">
+        <span class="game-card-icon">🔢</span>
+        <span class="game-card-title">数字当てゲーム</span>
+        <span class="game-card-desc">3桁の数字を推理せよ</span>
+    </a>
+
+    <a href="{{ url_for('othello') }}" class="game-card">
+        <span class="game-card-icon">⚫</span>
+        <span class="game-card-title">オセロ</span>
+        <span class="game-card-desc">石を挟んでひっくり返せ</span>
+    </a>
+</div>
+
+</body>
+</html>

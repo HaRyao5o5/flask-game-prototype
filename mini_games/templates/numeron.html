@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>数字当てゲーム</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>数字当てゲーム</h1>
+
+<p class="rule-text">
+    重複しない3桁の数字を予想してね。桁も数字も合っていれば EAT、数字だけ合っていれば BITE。
+    先に3EATを出した方が勝ち！
+</p>
+
+{% if error %}
+    <p class="error-text">{{ error }}</p>
+{% endif %}
+
+{% if winner is none %}
+<form method="POST" action="{{ url_for('numeron_guess') }}" class="guess-form">
+    <input type="text" name="guess" maxlength="3" pattern="[0-9]{3}" placeholder="例: 123" required>
+    <button type="submit" class="guess-btn">予想する</button>
+</form>
+{% endif %}
+
+<table class="history-table">
+    <thead>
+        <tr>
+            <th>あなたの予想</th>
+            <th>結果</th>
+            <th>CPUの予想</th>
+            <th>結果</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for turn in history %}
+        <tr>
+            <td>{{ turn.player_guess }}</td>
+            <td>{{ turn.player_eat }} EAT / {{ turn.player_bite }} BITE</td>
+            <td>{{ turn.cpu_guess }}</td>
+            <td>{{ turn.cpu_eat }} EAT / {{ turn.cpu_bite }} BITE</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% if winner == "player" %}
+    <div class="result-banner win">あなたの勝ち！🎉</div>
+{% elif winner == "cpu" %}
+    <div class="result-banner lose">あなたの負け...😢</div>
+{% elif winner == "draw" %}
+    <div class="result-banner draw">同時に的中、引き分け！</div>
+{% endif %}
+
+<a href="{{ url_for('numeron_reset') }}" class="reset-link">最初からやり直す</a>
+<a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+</body>
+</html>

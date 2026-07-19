@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>○×ゲーム</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>○×ゲーム</h1>
+
+<table class="board">
+{% for row in range(3) %}
+    <tr>
+    {% for col in range(3) %}
+        <td>
+            {% if board[row][col] == "" and winner is none %}
+                <form method="POST" action="{{ url_for('tictactoe_move') }}">
+                    <input type="hidden" name="row" value="{{ row }}">
+                    <input type="hidden" name="col" value="{{ col }}">
+                    <button type="submit" class="cell-btn"></button>
+                </form>
+            {% elif board[row][col] == "X" %}
+                <span class="mark x">×</span>
+            {% elif board[row][col] == "O" %}
+                <span class="mark o">○</span>
+            {% endif %}
+        </td>
+    {% endfor %}
+    </tr>
+{% endfor %}
+</table>
+
+{% if winner == "draw" %}
+    <div class="result-banner draw">引き分け！</div>
+{% elif winner == "X" %}
+    <div class="result-banner win">あなたの勝ち！🎉</div>
+{% elif winner == "O" %}
+    <div class="result-banner lose">あなたの負け...😢</div>
+{% endif %}
+
+<a href="{{ url_for('tictactoe_reset') }}" class="reset-link">最初からやり直す</a>
+<a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+</body>
+</html>
