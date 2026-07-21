@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ルーレット</title>
+{% if phase == 'spinning' %}
+<meta http-equiv="refresh" content="2.4;url={{ url_for('roulette_settle_spin') }}">
+{% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-result="{% if result == 'win' %}win{% elif result == 'lose' %}lose{% endif %}">
+
+<h1>ルーレット</h1>
+
+<p class="score-text">手持ちチップ: {{ chips }} 枚</p>
+
+{% if phase == 'betting' %}
+
+<div class="rule-box">
+    <p class="rule-title">遊び方</p>
+    <ul class="rule-list">
+        <li>賭け金を決めると、ルーレットの球が回り出す</li>
+        <li>球が止まったら、出た数字に対する賭け方を選ぶ</li>
+        <li>数字ピタリ的中は36倍、赤/黒・偶数/奇数は2倍</li>
+        <li>0は赤黒にも偶奇にも属さないので、その2つの賭け方では外れになる</li>
+    </ul>
+</div>
+
+<form method="POST" action="{{ url_for('roulette_spin') }}" class="guess-form">
+    <input type="number" name="amount" min="1" max="{{ chips }}" value="{{ roulette_last_bet or 10 }}" required>
+    <button type="submit" class="guess-btn">回す</button>
+</form>
+
+{% if chips <= 0 %}
+    <p class="pass-text">チップが尽きちゃったね</p>
+    <a href="{{ url_for('roulette_bonus') }}" class="reset-link">追加チップをもらう</a>
+{% endif %}
+
+{% elif phase == 'spinning' %}
+
+<p class="rule-text">賭け金: {{ bet }} 枚</p>
+
+<div class="wheel-area">
+    <div class="wheel spinning">🎡</div>
+</div>
+<p class="pass-text">球が回っている…</p>
+
+{% elif phase == 'choosing' %}
+
+<p class="rule-text">賭け金: {{ bet }} 枚</p>
+
+<div class="wheel-area">
+    <div class="wheel">🎡</div>
+</div>
+<p class="pass-text">さあ、どこに賭ける？</p>
+
+<form method="POST" action="{{ url_for('roulette_choose') }}" class="roulette-bet-form">
+    <input type="hidden" name="bet_value" id="bet-value-input" value="0">
+
+    <div class="bet-group">
+        <p class="bet-group-label">色で賭ける</p>
+        <button type="submit" name="bet_type" value="color" class="bet-btn red" onclick="document.getElementById('bet-value-input').value='red'">赤</button>
+        <button type="submit" name="bet_type" value="color" class="bet-btn black" onclick="document.getElementById('bet-value-input').value='black'">黒</button>
+    </div>
+    <div class="bet-group">
+        <p class="bet-group-label">偶奇で賭ける</p>
+        <button type="submit" name="bet_type" value="parity" class="bet-btn" onclick="document.getElementById('bet-value-input').value='even'">偶数</button>
+        <button type="submit" name="bet_type" value="parity" class="bet-btn" onclick="document.getElementById('bet-value-input').value='odd'">奇数</button>
+    </div>
+    <div class="bet-group">
+        <p class="bet-group-label">数字ピタリ（36倍）</p>
+        <input type="number" id="number-input" min="0" max="36" value="0" class="number-bet-input" onchange="document.getElementById('bet-value-input').value=this.value">
+        <button type="submit" name="bet_type" value="number" class="bet-btn number">この数字に賭ける</button>
+    </div>
+</form>
+
+{% else %}
+
+<p class="rule-text">賭け金: {{ bet }} 枚</p>
+<p class="rule-text">
+    あなたの賭け方:
+    {% if bet_type == "number" %}数字「{{ bet_value }}」
+    {% elif bet_type == "color" %}{{ "赤" if bet_value == "red" else "黒" }}
+    {% elif bet_type == "parity" %}{{ "偶数" if bet_value == "even" else "奇数" }}
+    {% endif %}
+</p>
+
+<div class="wheel-area">
+    <div class="result-number {{ color }}">{{ number }}</div>
+</div>
+<p class="rule-text">出た色: {{ "赤" if color == "red" else ("黒" if color == "black" else "緑（0）") }}</p>
+
+{% if result == "win" %}
+    <div class="result-banner win">大当たり！🎉 (+{{ payout }}枚)</div>
+{% else %}
+    <div class="result-banner lose">ハズレ...😢</div>
+{% endif %}
+
+<div class="difficulty-form">
+    {% if chips >= bet %}
+    <a href="{{ url_for('roulette_again') }}" class="guess-btn">同じ賭け金でもう一度</a>
+    {% endif %}
+    <a href="{{ url_for('roulette_next') }}" class="reset-link">賭け金を変える</a>
+</div>
+
+{% endif %}
+
+<a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+<script src="{{ url_for('static', filename='effects.js') }}"></script>
+</body>
+</html>

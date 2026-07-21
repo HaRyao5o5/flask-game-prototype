@@ -6,6 +6,9 @@ import concentration_logic as cc
 import blackjack_logic as bj
 import casino_logic as cas
 import slot_logic as sl
+import dice_logic as dc
+import roulette_logic as rl
+import poker_logic as pk
 
 app = Flask(__name__)
 app.secret_key = "dev"  # sessionを使うのに必要（本番では推測されにくい値にする）
@@ -710,6 +713,332 @@ def slot_bonus():
     chips = get_chips()
     save_chips(cas.add_bonus_chips(chips))
     return redirect(url_for('slot'))
+
+# ==================================================
+# 丁半博打
+# ==================================================
+
+@app.route('/chohan/')
+def chohan():
+    chips = get_chips()
+    phase = session.get('chohan_phase', 'betting')
+
+    return render_template(
+        'chohan.html',
+        chips=chips,
+        phase=phase,
+        dice=session.get('chohan_dice'),
+        bet_choice=session.get('chohan_bet_choice'),
+        bet=session.get('chohan_bet'),
+        result=session.get('chohan_result'),
+        payout=session.get('chohan_payout'),
+        chohan_last_bet=session.get('chohan_last_bet')
+    )
+
+@app.route('/chohan/roll', methods=['POST'])
+def chohan_roll():
+    if session.get('chohan_phase', 'betting') != 'betting':
+        return redirect(url_for('chohan'))
+
+    chips = get_chips()
+    amount = int(request.form.get('amount', 0))
+
+    if not cas.can_bet(chips, amount):
+        return redirect(url_for('chohan'))
+
+    # ここで壺を振っておく（結果は確定するが、まだ画面には見せない）
+    session['chohan_dice'] = dc.roll_dice()
+    session['chohan_bet'] = amount
+    session['chohan_last_bet'] = amount
+    session['chohan_phase'] = 'rolling'
+    session.modified = True
+
+    return redirect(url_for('chohan'))
+
+@app.route('/chohan/settle_roll')
+def chohan_settle_roll():
+    """振っている演出が終わったら、選択画面に切り替える"""
+    if session.get('chohan_phase') != 'rolling':
+        return redirect(url_for('chohan'))
+
+    session['chohan_phase'] = 'choosing'
+    session.modified = True
+    return redirect(url_for('chohan'))
+
+@app.route('/chohan/choose', methods=['POST'])
+def chohan_choose():
+    if session.get('chohan_phase') != 'choosing':
+        return redirect(url_for('chohan'))
+
+    choice = request.form.get('choice', '')
+    if choice not in ('cho', 'han'):
+        return redirect(url_for('chohan'))
+
+    dice = session['chohan_dice']
+    amount = session['chohan_bet']
+    won = dc.is_win(dice, choice)
+    multiplier = 2.0 if won else 0.0
+
+    chips = get_chips()
+    new_chips = cas.apply_bet_result(chips, amount, multiplier)
+    save_chips(new_chips)
+
+    session['chohan_bet_choice'] = choice
+    session['chohan_result'] = 'win' if won else 'lose'
+    session['chohan_payout'] = int(amount * multiplier)
+    session['chohan_phase'] = 'settled'
+    session.modified = True
+
+    return redirect(url_for('chohan'))
+
+@app.route('/chohan/next')
+def chohan_next():
+    session['chohan_phase'] = 'betting'
+    for key in ['chohan_dice', 'chohan_bet_choice', 'chohan_bet', 'chohan_result', 'chohan_payout']:
+        session.pop(key, None)
+    return redirect(url_for('chohan'))
+
+@app.route('/chohan/bonus')
+def chohan_bonus():
+    chips = get_chips()
+    save_chips(cas.add_bonus_chips(chips))
+    return redirect(url_for('chohan'))
+
+# ==================================================
+# ルーレット
+# ==================================================
+
+@app.route('/roulette/')
+def roulette():
+    chips = get_chips()
+    phase = session.get('roulette_phase', 'betting')
+
+    return render_template(
+        'roulette.html',
+        chips=chips,
+        phase=phase,
+        number=session.get('roulette_number'),
+        color=rl.get_color(session['roulette_number']) if session.get('roulette_number') is not None else None,
+        bet_type=session.get('roulette_bet_type'),
+        bet_value=session.get('roulette_bet_value'),
+        bet=session.get('roulette_bet'),
+        result=session.get('roulette_result'),
+        payout=session.get('roulette_payout'),
+        roulette_last_bet=session.get('roulette_last_bet')
+    )
+
+def _roulette_start_spin(amount):
+    """賭け金を受け取り、実際にスピンを開始する共通処理"""
+    chips = get_chips()
+
+    if not cas.can_bet(chips, amount):
+        return False
+
+    session['roulette_number'] = rl.spin()
+    session['roulette_bet'] = amount
+    session['roulette_last_bet'] = amount
+    session['roulette_phase'] = 'spinning'
+    for key in ['roulette_bet_type', 'roulette_bet_value', 'roulette_result', 'roulette_payout']:
+        session.pop(key, None)
+    session.modified = True
+    return True
+
+@app.route('/roulette/spin', methods=['POST'])
+def roulette_spin():
+    if session.get('roulette_phase', 'betting') != 'betting':
+        return redirect(url_for('roulette'))
+
+    amount = int(request.form.get('amount', 0))
+    _roulette_start_spin(amount)
+    return redirect(url_for('roulette'))
+
+@app.route('/roulette/again')
+def roulette_again():
+    amount = session.get('roulette_last_bet')
+    if amount:
+        _roulette_start_spin(amount)
+    return redirect(url_for('roulette'))
+
+@app.route('/roulette/settle_spin')
+def roulette_settle_spin():
+    if session.get('roulette_phase') != 'spinning':
+        return redirect(url_for('roulette'))
+
+    session['roulette_phase'] = 'choosing'
+    session.modified = True
+    return redirect(url_for('roulette'))
+
+@app.route('/roulette/choose', methods=['POST'])
+def roulette_choose():
+    if session.get('roulette_phase') != 'choosing':
+        return redirect(url_for('roulette'))
+
+    bet_type = request.form.get('bet_type', '')
+    bet_value_raw = request.form.get('bet_value', '')
+
+    if bet_type not in ('number', 'color', 'parity'):
+        return redirect(url_for('roulette'))
+
+    # "number"の場合だけ、文字列を数字に変換しておく
+    bet_value = int(bet_value_raw) if bet_type == 'number' else bet_value_raw
+
+    number = session['roulette_number']
+    amount = session['roulette_bet']
+    won, multiplier = rl.judge(number, bet_type, bet_value)
+
+    chips = get_chips()
+    new_chips = cas.apply_bet_result(chips, amount, multiplier if won else 0.0)
+    save_chips(new_chips)
+
+    session['roulette_bet_type'] = bet_type
+    session['roulette_bet_value'] = bet_value
+    session['roulette_result'] = 'win' if won else 'lose'
+    session['roulette_payout'] = int(amount * multiplier) if won else 0
+    session['roulette_phase'] = 'settled'
+    session.modified = True
+
+    return redirect(url_for('roulette'))
+
+@app.route('/roulette/next')
+def roulette_next():
+    session['roulette_phase'] = 'betting'
+    for key in ['roulette_number', 'roulette_bet_type', 'roulette_bet_value', 'roulette_bet', 'roulette_result', 'roulette_payout']:
+        session.pop(key, None)
+    return redirect(url_for('roulette'))
+
+@app.route('/roulette/bonus')
+def roulette_bonus():
+    chips = get_chips()
+    save_chips(cas.add_bonus_chips(chips))
+    return redirect(url_for('roulette'))
+
+# ==================================================
+# ポーカー（ビデオポーカー）
+# ==================================================
+
+@app.route('/poker/')
+def poker():
+    chips = get_chips()
+    phase = session.get('poker_phase', 'betting')
+
+    return render_template(
+        'poker.html',
+        chips=chips,
+        phase=phase,
+        hand=session.get('poker_hand'),
+        held=session.get('poker_held', [False] * 5),
+        bet=session.get('poker_bet'),
+        result_key=session.get('poker_result_key'),
+        result_label=pk.get_label(session['poker_result_key']) if session.get('poker_result_key') else None,
+        payout=session.get('poker_payout'),
+        poker_last_bet=session.get('poker_last_bet')
+    )
+
+@app.route('/poker/deal', methods=['POST'])
+def poker_deal():
+    if session.get('poker_phase', 'betting') != 'betting':
+        return redirect(url_for('poker'))
+
+    chips = get_chips()
+    amount = int(request.form.get('amount', 0))
+
+    if not cas.can_bet(chips, amount):
+        return redirect(url_for('poker'))
+
+    deck = pk.create_deck()
+    hand = [deck.pop() for _ in range(5)]
+
+    session['poker_deck'] = deck
+    session['poker_hand'] = hand
+    session['poker_held'] = [False] * 5
+    session['poker_bet'] = amount
+    session['poker_last_bet'] = amount
+    session['poker_phase'] = 'holding'
+    session.modified = True
+
+    return redirect(url_for('poker'))
+
+@app.route('/poker/toggle_hold/<int:index>')
+def poker_toggle_hold(index):
+    if session.get('poker_phase') != 'holding':
+        return redirect(url_for('poker'))
+
+    held = session.get('poker_held', [False] * 5)
+    if 0 <= index < 5:
+        held[index] = not held[index]
+        session['poker_held'] = held
+        session.modified = True
+
+    return redirect(url_for('poker'))
+
+@app.route('/poker/draw', methods=['POST'])
+def poker_draw():
+    if session.get('poker_phase') != 'holding':
+        return redirect(url_for('poker'))
+
+    deck = session['poker_deck']
+    hand = session['poker_hand']
+    held = session['poker_held']
+
+    new_hand = []
+    for i in range(5):
+        if held[i]:
+            new_hand.append(hand[i])
+        else:
+            new_hand.append(deck.pop())
+
+    result_key = pk.evaluate_hand(new_hand)
+    multiplier = pk.get_multiplier(result_key)
+    amount = session['poker_bet']
+
+    chips = get_chips()
+    new_chips = cas.apply_bet_result(chips, amount, float(multiplier))
+    save_chips(new_chips)
+
+    session['poker_hand'] = new_hand
+    session['poker_result_key'] = result_key
+    session['poker_payout'] = int(amount * multiplier)
+    session['poker_phase'] = 'settled'
+    session.modified = True
+
+    return redirect(url_for('poker'))
+
+@app.route('/poker/again')
+def poker_again():
+    amount = session.get('poker_last_bet')
+    if not amount:
+        return redirect(url_for('poker'))
+
+    chips = get_chips()
+    if not cas.can_bet(chips, amount):
+        return redirect(url_for('poker'))
+
+    deck = pk.create_deck()
+    hand = [deck.pop() for _ in range(5)]
+
+    session['poker_deck'] = deck
+    session['poker_hand'] = hand
+    session['poker_held'] = [False] * 5
+    session['poker_bet'] = amount
+    session['poker_phase'] = 'holding'
+    for key in ['poker_result_key', 'poker_payout']:
+        session.pop(key, None)
+    session.modified = True
+
+    return redirect(url_for('poker'))
+
+@app.route('/poker/next')
+def poker_next():
+    session['poker_phase'] = 'betting'
+    for key in ['poker_deck', 'poker_hand', 'poker_held', 'poker_bet', 'poker_result_key', 'poker_payout']:
+        session.pop(key, None)
+    return redirect(url_for('poker'))
+
+@app.route('/poker/bonus')
+def poker_bonus():
+    chips = get_chips()
+    save_chips(cas.add_bonus_chips(chips))
+    return redirect(url_for('poker'))
 
 # ==================================================
 # チップ管理の共通ヘルパー

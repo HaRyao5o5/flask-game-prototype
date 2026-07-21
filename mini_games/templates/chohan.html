@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>丁半博打</title>
+{% if phase == 'rolling' %}
+<meta http-equiv="refresh" content="2;url={{ url_for('chohan_settle_roll') }}">
+{% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-result="{% if result == 'win' %}win{% elif result == 'lose' %}lose{% endif %}">
+
+<h1>丁半博打</h1>
+
+<p class="score-text">手持ちチップ: {{ chips }} 枚</p>
+
+{% if phase == 'betting' %}
+
+<div class="rule-box">
+    <p class="rule-title">遊び方</p>
+    <ul class="rule-list">
+        <li>賭け金を決めると、壺の中でサイコロが振られる</li>
+        <li>壺が静まったら、目の合計が偶数(丁)か奇数(半)かを予想する</li>
+        <li>当たれば賭け金が2倍、外れれば賭け金は没収</li>
+    </ul>
+</div>
+
+<form method="POST" action="{{ url_for('chohan_roll') }}" class="guess-form">
+    <input type="number" name="amount" min="1" max="{{ chips }}" value="{{ chohan_last_bet or 10 }}" required>
+    <button type="submit" class="guess-btn">壺を振る</button>
+</form>
+
+{% if chips <= 0 %}
+    <p class="pass-text">チップが尽きちゃったね</p>
+    <a href="{{ url_for('chohan_bonus') }}" class="reset-link">追加チップをもらう</a>
+{% endif %}
+
+{% elif phase == 'rolling' %}
+
+<p class="rule-text">賭け金: {{ bet }} 枚</p>
+
+<div class="cup-area">
+    <div class="cup shaking">🥣</div>
+</div>
+<p class="pass-text">壺の中でサイコロが転がっている…</p>
+
+{% elif phase == 'choosing' %}
+
+<p class="rule-text">賭け金: {{ bet }} 枚</p>
+
+<div class="cup-area">
+    <div class="cup">🥣</div>
+</div>
+<p class="pass-text">さあ、丁か半か…</p>
+
+<form method="POST" action="{{ url_for('chohan_choose') }}" class="difficulty-form">
+    <button type="submit" name="choice" value="cho" class="difficulty-btn easy">
+        <span class="difficulty-label">丁（偶数）</span>
+    </button>
+    <button type="submit" name="choice" value="han" class="difficulty-btn normal">
+        <span class="difficulty-label">半（奇数）</span>
+    </button>
+</form>
+
+{% else %}
+
+<p class="rule-text">賭け金: {{ bet }} 枚 / あなたの予想: {{ "丁" if bet_choice == "cho" else "半" }}</p>
+
+<div class="dice-area">
+    <div class="die">{{ dice[0] }}</div>
+    <div class="die">{{ dice[1] }}</div>
+</div>
+
+<p class="rule-text">合計: {{ dice[0] + dice[1] }}（{{ "丁" if (dice[0] + dice[1]) % 2 == 0 else "半" }}）</p>
+
+{% if result == "win" %}
+    <div class="result-banner win">当たり！🎉 (+{{ payout }}枚)</div>
+{% else %}
+    <div class="result-banner lose">ハズレ...😢</div>
+{% endif %}
+
+<div class="difficulty-form">
+    <a href="{{ url_for('chohan_next') }}" class="guess-btn">次の壺で勝負</a>
+</div>
+
+{% endif %}
+
+<a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+<script src="{{ url_for('static', filename='effects.js') }}"></script>
+</body>
+</html>

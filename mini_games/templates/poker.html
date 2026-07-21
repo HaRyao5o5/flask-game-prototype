@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ポーカー</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-result="{% if payout and payout > 0 %}win{% elif phase == 'settled' %}lose{% endif %}">
+
+<h1>ポーカー</h1>
+
+<p class="score-text">手持ちチップ: {{ chips }} 枚</p>
+
+{% if phase == 'betting' %}
+
+<div class="rule-box">
+    <p class="rule-title">遊び方</p>
+    <ul class="rule-list">
+        <li>5枚のカードが配られる、残したいカードを選んで「引き直す」</li>
+        <li>選ばなかったカードだけ新しく引き直され、最終的な役で配当が決まる</li>
+        <li>ワンペアはJ・Q・K・Aのペアだけが役として認められる（10以下のペアは役なし）</li>
+        <li>役なしの場合、賭け金は没収される</li>
+    </ul>
+</div>
+
+<form method="POST" action="{{ url_for('poker_deal') }}" class="guess-form">
+    <input type="number" name="amount" min="1" max="{{ chips }}" value="{{ poker_last_bet or 10 }}" required>
+    <button type="submit" class="guess-btn">配る</button>
+</form>
+
+{% if chips <= 0 %}
+    <p class="pass-text">チップが尽きちゃったね</p>
+    <a href="{{ url_for('poker_bonus') }}" class="reset-link">追加チップをもらう</a>
+{% endif %}
+
+{% else %}
+
+<p class="rule-text">賭け金: {{ bet }} 枚</p>
+
+<div class="poker-hand">
+    {% for card in hand %}
+        <div class="poker-card-wrap">
+            <div class="poker-card {{ 'red' if card.suit in ['♥', '♦'] else 'black' }} {% if held[loop.index0] %}held{% endif %}">
+                <span>{{ card.rank }}</span><span>{{ card.suit }}</span>
+            </div>
+            {% if phase == 'holding' %}
+                <a href="{{ url_for('poker_toggle_hold', index=loop.index0) }}" class="hold-btn {% if held[loop.index0] %}active{% endif %}">
+                    {{ "HOLD中" if held[loop.index0] else "残す" }}
+                </a>
+            {% endif %}
+        </div>
+    {% endfor %}
+</div>
+
+{% if phase == 'holding' %}
+    <form method="POST" action="{{ url_for('poker_draw') }}">
+        <button type="submit" class="guess-btn">引き直す</button>
+    </form>
+{% else %}
+    <p class="rule-text">役: {{ result_label }}</p>
+
+    {% if payout and payout > 0 %}
+        <div class="result-banner win">{{ result_label }}！🎉 (+{{ payout }}枚)</div>
+    {% else %}
+        <div class="result-banner lose">役なし...😢</div>
+    {% endif %}
+
+    <div class="difficulty-form">
+        {% if chips >= bet %}
+        <a href="{{ url_for('poker_again') }}" class="guess-btn">同じ賭け金でもう一度</a>
+        {% endif %}
+        <a href="{{ url_for('poker_next') }}" class="reset-link">賭け金を変える</a>
+    </div>
+{% endif %}
+
+{% endif %}
+
+<a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+<script src="{{ url_for('static', filename='effects.js') }}"></script>
+</body>
+</html>

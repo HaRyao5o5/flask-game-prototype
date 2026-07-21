@@ -131,11 +131,29 @@ function initSlotReels() {
 document.addEventListener("DOMContentLoaded", initSlotReels);
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".cell-btn, .guess-btn, .difficulty-btn, button.card, .stop-btn").forEach((btn) => {
+    document.querySelectorAll(".cell-btn, .guess-btn, .difficulty-btn, button.card, .stop-btn, .hold-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             playClickSound();
         });
     });
+
+    if (document.querySelector(".cup.shaking")) {
+        let count = 0;
+        const rattle = setInterval(() => {
+            playTone(300 + Math.random() * 200, 0.05, "square", 0.04);
+            count++;
+            if (count > 6) clearInterval(rattle);
+        }, 300);
+    }
+
+    if (document.querySelector(".wheel.spinning")) {
+    let count = 0;
+    const spin = setInterval(() => {
+        playTone(200 + Math.random() * 100, 0.04, "triangle", 0.05);
+        count++;
+        if (count > 10) clearInterval(spin);
+    }, 200);
+}
 
     // オセロ：CPUが直前に置いた石があれば、軽い音を鳴らす
     if (document.querySelector(".stone.last-move")) {
