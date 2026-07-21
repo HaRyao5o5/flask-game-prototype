@@ -14,8 +14,23 @@ def index():
 # ○×ゲーム
 # ==================================================
 
+@app.route('/tictactoe/difficulty/')
+def tictactoe_difficulty():
+    return render_template('tictactoe_difficulty.html')
+
+@app.route('/tictactoe/start', methods=['POST'])
+def tictactoe_start():
+    difficulty = request.form.get('difficulty', 'normal')
+    session['tt_difficulty'] = difficulty
+    session['tt_board'] = tt.create_board()
+    session['tt_winner'] = None
+    return redirect(url_for('tictactoe'))
+
 @app.route('/tictactoe/')
 def tictactoe():
+    if 'tt_difficulty' not in session:
+        return redirect(url_for('tictactoe_difficulty'))
+
     if 'tt_board' not in session:
         session['tt_board'] = tt.create_board()
         session['tt_winner'] = None
@@ -23,7 +38,8 @@ def tictactoe():
     return render_template(
         'tictactoe.html',
         board=session['tt_board'],
-        winner=session['tt_winner']
+        winner=session['tt_winner'],
+        difficulty=session['tt_difficulty']
     )
 
 @app.route('/tictactoe/move', methods=['POST'])
@@ -42,7 +58,7 @@ def tictactoe_move():
         winner = tt.check_winner(board)
 
         if winner is None:
-            cpu_row, cpu_col = tt.cpu_move(board, difficulty="normal")
+            cpu_row, cpu_col = tt.cpu_move(board, difficulty=session['tt_difficulty'])
             tt.place_mark(board, cpu_row, cpu_col, "O")
             winner = tt.check_winner(board)
 
@@ -62,8 +78,26 @@ def tictactoe_reset():
 # 数字当てゲーム
 # ==================================================
 
+@app.route('/numeron/difficulty/')
+def numeron_difficulty():
+    return render_template('numeron_difficulty.html')
+
+@app.route('/numeron/start', methods=['POST'])
+def numeron_start():
+    difficulty = request.form.get('difficulty', 'normal')
+    session['nm_difficulty'] = difficulty
+    session['nm_player_secret'] = nm.generate_secret_number()
+    session['nm_cpu_secret'] = nm.generate_secret_number()
+    session['nm_history'] = []
+    session['nm_winner'] = None
+    session['nm_error'] = None
+    return redirect(url_for('numeron'))
+
 @app.route('/numeron/')
 def numeron():
+    if 'nm_difficulty' not in session:
+        return redirect(url_for('numeron_difficulty'))
+
     if 'nm_player_secret' not in session:
         session['nm_player_secret'] = nm.generate_secret_number()
         session['nm_cpu_secret'] = nm.generate_secret_number()
@@ -75,7 +109,8 @@ def numeron():
         'numeron.html',
         history=session['nm_history'],
         winner=session['nm_winner'],
-        error=session.get('nm_error')
+        error=session.get('nm_error'),
+        difficulty=session['nm_difficulty']
     )
 
 @app.route('/numeron/guess', methods=['POST'])
@@ -92,7 +127,7 @@ def numeron_guess():
     session['nm_error'] = None
 
     player_eat, player_bite = nm.judge(session['nm_cpu_secret'], player_guess)
-    cpu_guessed = nm.cpu_guess(difficulty="normal", history=session['nm_history'])
+    cpu_guessed = nm.cpu_guess(difficulty=session['nm_difficulty'], history=session['nm_history'])
     cpu_eat, cpu_bite = nm.judge(session['nm_player_secret'], cpu_guessed)
 
     history = session['nm_history']
@@ -149,7 +184,7 @@ def othello_advance_step():
         return
 
     if current_color == ot.WHITE:
-        row, col = ot.cpu_move(board, ot.WHITE, difficulty="normal")
+        row, col = ot.cpu_move(board, ot.WHITE, difficulty=session.get('ot_difficulty', 'normal'))
         ot.place_and_flip(board, row, col, ot.WHITE)
         messages.append(f"CPUは {ot.to_notation(row, col)} に置きました")
         session['othello_board'] = board
@@ -159,8 +194,26 @@ def othello_advance_step():
         session.modified = True
         return
 
+@app.route('/othello/difficulty/')
+def othello_difficulty():
+    return render_template('othello_difficulty.html')
+
+@app.route('/othello/start', methods=['POST'])
+def othello_start():
+    difficulty = request.form.get('difficulty', 'normal')
+    session['ot_difficulty'] = difficulty
+    session['othello_board'] = ot.create_board()
+    session['othello_turn'] = ot.BLACK
+    session['othello_winner'] = None
+    session['othello_messages'] = []
+    session['othello_last_cpu_move'] = None
+    return redirect(url_for('othello'))
+
 @app.route('/othello/')
 def othello():
+    if 'ot_difficulty' not in session:
+        return redirect(url_for('othello_difficulty'))
+
     if 'othello_board' not in session:
         session['othello_board'] = ot.create_board()
         session['othello_turn'] = ot.BLACK

@@ -12,6 +12,8 @@
 
 <h1>オセロ</h1>
 
+<p class="rule-text">難易度: {{ "EASY" if difficulty == "easy" else "NORMAL" }}</p>
+
 <p class="score-text">
     あなた（黒）: {{ black_count }}　CPU（白）: {{ white_count }}
 </p>
@@ -72,6 +74,7 @@
 {% endif %}
 
 <a href="{{ url_for('othello_reset') }}" class="reset-link">最初からやり直す</a>
+<a href="{{ url_for('othello_difficulty') }}" class="reset-link">難易度を選び直す</a>
 <a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
 
 <script src="{{ url_for('static', filename='effects.js') }}"></script>

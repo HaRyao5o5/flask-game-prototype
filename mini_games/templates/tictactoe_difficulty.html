@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>難易度選択 - ○×ゲーム</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<h1>○×ゲーム</h1>
+<p class="rule-text">難易度を選んでね</p>
+
+<form method="POST" action="{{ url_for('tictactoe_start') }}" class="difficulty-form">
+    <button type="submit" name="difficulty" value="easy" class="difficulty-btn easy">
+        <span class="difficulty-label">EASY</span>
+        <span class="difficulty-desc">ランダムに手を選ぶ</span>
+    </button>
+    <button type="submit" name="difficulty" value="normal" class="difficulty-btn normal">
+        <span class="difficulty-label">NORMAL</span>
+        <span class="difficulty-desc">勝ち筋を狙い、負けを防ぐ</span>
+    </button>
+</form>
+
+<a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+</body>
+</html>

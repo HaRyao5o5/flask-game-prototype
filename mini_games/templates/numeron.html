@@ -9,6 +9,8 @@
 
 <h1>数字当てゲーム</h1>
 
+<p class="rule-text">難易度: {{ "EASY" if difficulty == "easy" else "NORMAL" }}</p>
+
 <p class="rule-text">
     重複しない3桁の数字を予想してね。桁も数字も合っていれば EAT、数字だけ合っていれば BITE。
     先に3EATを出した方が勝ち！
@@ -55,6 +57,7 @@
 {% endif %}
 
 <a href="{{ url_for('numeron_reset') }}" class="reset-link">最初からやり直す</a>
+<a href="{{ url_for('numeron_difficulty') }}" class="reset-link">難易度を選び直す</a>
 <a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
 
 <script src="{{ url_for('static', filename='effects.js') }}"></script>
