@@ -48,7 +48,7 @@ function playDrawSound() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    document.querySelectorAll(".cell-btn, .guess-btn").forEach((btn) => {
+    document.querySelectorAll(".cell-btn, .guess-btn, .difficulty-btn").forEach((btn) => {
         btn.addEventListener("click", () => {
             playClickSound();
         });

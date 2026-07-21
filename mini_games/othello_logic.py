@@ -144,14 +144,6 @@ def cpu_move(board, color, difficulty="easy"):
         return _cpu_move_normal(board, valid_moves, color)
 
 def to_notation(row, col):
-    """
-    (row, col) を "C4" のようなオセロ表記に変換する
-    """
-    column_letter = chr(ord('A') + col)
-    row_number = row + 1
-    return f"{column_letter}{row_number}"
-
-def to_notation(row, col):
     """(row, col) を "C4" のようなオセロ表記に変換する"""
     return f"{COLUMN_LETTERS[col]}{row + 1}"
 

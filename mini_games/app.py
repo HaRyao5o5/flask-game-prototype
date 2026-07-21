@@ -165,21 +165,21 @@ def numeron_reset():
 # ==================================================
 
 def othello_advance_step():
-    board = session['othello_board']
+    board = session['ot_board']
 
     if ot.is_game_over(board):
-        session['othello_winner'] = ot.judge_winner(board)
+        session['ot_winner'] = ot.judge_winner(board)
         return
 
-    current_color = session['othello_turn']
+    current_color = session['ot_turn']
     valid_moves = ot.get_valid_moves(board, current_color)
-    messages = session.get('othello_messages', [])
+    messages = session.get('ot_messages', [])
 
     if not valid_moves:
         name = "あなた" if current_color == ot.BLACK else "CPU"
         messages.append(f"{name}は置ける場所がないためパスしました")
-        session['othello_turn'] = ot.WHITE if current_color == ot.BLACK else ot.BLACK
-        session['othello_messages'] = messages[-5:]
+        session['ot_turn'] = ot.WHITE if current_color == ot.BLACK else ot.BLACK
+        session['ot_messages'] = messages[-5:]
         session.modified = True
         return
 
@@ -187,10 +187,10 @@ def othello_advance_step():
         row, col = ot.cpu_move(board, ot.WHITE, difficulty=session.get('ot_difficulty', 'normal'))
         ot.place_and_flip(board, row, col, ot.WHITE)
         messages.append(f"CPUは {ot.to_notation(row, col)} に置きました")
-        session['othello_board'] = board
-        session['othello_turn'] = ot.BLACK
-        session['othello_last_cpu_move'] = (row, col)
-        session['othello_messages'] = messages[-5:]
+        session['ot_board'] = board
+        session['ot_turn'] = ot.BLACK
+        session['ot_last_cpu_move'] = (row, col)
+        session['ot_messages'] = messages[-5:]
         session.modified = True
         return
 
@@ -202,11 +202,11 @@ def othello_difficulty():
 def othello_start():
     difficulty = request.form.get('difficulty', 'normal')
     session['ot_difficulty'] = difficulty
-    session['othello_board'] = ot.create_board()
-    session['othello_turn'] = ot.BLACK
-    session['othello_winner'] = None
-    session['othello_messages'] = []
-    session['othello_last_cpu_move'] = None
+    session['ot_board'] = ot.create_board()
+    session['ot_turn'] = ot.BLACK
+    session['ot_winner'] = None
+    session['ot_messages'] = []
+    session['ot_last_cpu_move'] = None
     return redirect(url_for('othello'))
 
 @app.route('/othello/')
@@ -214,27 +214,27 @@ def othello():
     if 'ot_difficulty' not in session:
         return redirect(url_for('othello_difficulty'))
 
-    if 'othello_board' not in session:
-        session['othello_board'] = ot.create_board()
-        session['othello_turn'] = ot.BLACK
-        session['othello_winner'] = None
-        session['othello_messages'] = []
-        session['othello_last_cpu_move'] = None
+    if 'ot_board' not in session:
+        session['ot_board'] = ot.create_board()
+        session['ot_turn'] = ot.BLACK
+        session['ot_winner'] = None
+        session['ot_messages'] = []
+        session['ot_last_cpu_move'] = None
 
-    board = session['othello_board']
+    board = session['ot_board']
     black, white = ot.count_stones(board)
 
-    current_turn = session['othello_turn']
-    current_valid_moves = ot.get_valid_moves(board, current_turn) if session['othello_winner'] is None else []
+    current_turn = session['ot_turn']
+    current_valid_moves = ot.get_valid_moves(board, current_turn) if session['ot_winner'] is None else []
     is_players_turn = (
-        session['othello_winner'] is None
+        session['ot_winner'] is None
         and current_turn == ot.BLACK
         and len(current_valid_moves) > 0
     )
-    waiting = session['othello_winner'] is None and not is_players_turn
+    waiting = session['ot_winner'] is None and not is_players_turn
     valid_moves = current_valid_moves if is_players_turn else []
 
-    raw_last_move = session.get('othello_last_cpu_move')
+    raw_last_move = session.get('ot_last_cpu_move')
     last_cpu_move = tuple(raw_last_move) if raw_last_move else None
 
     return render_template(
@@ -243,43 +243,44 @@ def othello():
         valid_moves=valid_moves,
         black_count=black,
         white_count=white,
-        winner=session['othello_winner'],
-        messages=session.get('othello_messages', []),
+        winner=session['ot_winner'],
+        messages=session.get('ot_messages', []),
         last_cpu_move=last_cpu_move,
         waiting=waiting,
-        columns=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
+        columns=['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'],
+        difficulty=session['ot_difficulty']
     )
 
 @app.route('/othello/step')
 def othello_step():
-    if session.get('othello_winner') is None:
+    if session.get('ot_winner') is None:
         othello_advance_step()
     return redirect(url_for('othello'))
 
 @app.route('/othello/move', methods=['POST'])
 def othello_move():
-    if session['othello_winner'] is not None:
+    if session['ot_winner'] is not None:
         return redirect(url_for('othello'))
 
     row = int(request.form['row'])
     col = int(request.form['col'])
-    board = session['othello_board']
+    board = session['ot_board']
 
     if (row, col) in ot.get_valid_moves(board, ot.BLACK):
         ot.place_and_flip(board, row, col, ot.BLACK)
-        session['othello_board'] = board
-        session['othello_turn'] = ot.WHITE
+        session['ot_board'] = board
+        session['ot_turn'] = ot.WHITE
         session.modified = True
 
     return redirect(url_for('othello'))
 
 @app.route('/othello/reset')
 def othello_reset():
-    session['othello_board'] = ot.create_board()
-    session['othello_turn'] = ot.BLACK
-    session['othello_winner'] = None
-    session['othello_messages'] = []
-    session['othello_last_cpu_move'] = None
+    session['ot_board'] = ot.create_board()
+    session['ot_turn'] = ot.BLACK
+    session['ot_winner'] = None
+    session['ot_messages'] = []
+    session['ot_last_cpu_move'] = None
     return redirect(url_for('othello'))
 
 if __name__ == '__main__':
