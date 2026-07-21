@@ -9,6 +9,8 @@
 
 <h1>○×ゲーム</h1>
 
+<p class="score-text">手持ちチップ: {{ chips }} 枚</p>
+
 <p class="rule-text">難易度: {{ "EASY" if difficulty == "easy" else "NORMAL" }}</p>
 
 <table class="board">
@@ -32,6 +34,10 @@
     </tr>
 {% endfor %}
 </table>
+
+{% if reward %}
+<p class="reward-text">💰 +{{ reward }} チップ獲得！</p>
+{% endif %}
 
 {% if winner == "draw" %}
     <div class="result-banner draw">引き分け！</div>

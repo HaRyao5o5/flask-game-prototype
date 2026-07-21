@@ -8,6 +8,17 @@
 <body>
 
 <h1>オセロ</h1>
+
+<div class="rule-box">
+    <p class="rule-title">遊び方</p>
+    <ul class="rule-list">
+        <li>自分の石で相手の石を挟めるマスに置くと、挟んだ石が自分の色にひっくり返る</li>
+        <li>置ける場所がなければ自動的にパス</li>
+        <li>両者とも置ける場所がなくなったら終了、石数が多い方が勝ち</li>
+        <li>盤面の四隅は一度取られるとひっくり返せないので、特に重要なマス</li>
+    </ul>
+</div>
+
 <p class="rule-text">難易度を選んでね</p>
 
 <form method="POST" action="{{ url_for('othello_start') }}" class="difficulty-form">

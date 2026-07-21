@@ -9,6 +9,8 @@
 
 <h1>数字当てゲーム</h1>
 
+<p class="score-text">手持ちチップ: {{ chips }} 枚</p>
+
 <p class="rule-text">難易度: {{ "EASY" if difficulty == "easy" else "NORMAL" }}</p>
 
 <p class="rule-text">
@@ -49,6 +51,10 @@
     {% endfor %}
     </tbody>
 </table>
+
+{% if reward %}
+<p class="reward-text">💰 +{{ reward }} チップ獲得！</p>
+{% endif %}
 
 {% if winner == "player" %}
     <div class="result-banner win">あなたの勝ち！🎉</div>

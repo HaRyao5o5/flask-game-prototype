@@ -2,32 +2,33 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>難易度選択 - ○×ゲーム</title>
+<title>難易度選択 - 神経衰弱</title>
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<h1>○×ゲーム</h1>
+<h1>神経衰弱</h1>
 
 <div class="rule-box">
     <p class="rule-title">遊び方</p>
     <ul class="rule-list">
-        <li>3×3のマスに交互に印を置き、縦・横・斜めのいずれかに3つ並べたら勝ち</li>
-        <li>あなたは×、CPUは○</li>
-        <li>全てのマスが埋まって誰も揃わなければ引き分け</li>
+        <li>裏向きのカードを2枚めくり、同じ絵柄ならペア成立</li>
+        <li>ペア成立なら自分の得点になり、続けてもう一度めくれる</li>
+        <li>絵柄が違えば裏に戻り、相手の番に交代</li>
+        <li>全てのペアが揃った時点で、獲得数が多い方の勝ち</li>
     </ul>
 </div>
 
 <p class="rule-text">難易度を選んでね</p>
 
-<form method="POST" action="{{ url_for('tictactoe_start') }}" class="difficulty-form">
+<form method="POST" action="{{ url_for('concentration_start') }}" class="difficulty-form">
     <button type="submit" name="difficulty" value="easy" class="difficulty-btn easy">
         <span class="difficulty-label">EASY</span>
-        <span class="difficulty-desc">ランダムに手を選ぶ</span>
+        <span class="difficulty-desc">CPUは記憶せずランダムにめくる</span>
     </button>
     <button type="submit" name="difficulty" value="normal" class="difficulty-btn normal">
         <span class="difficulty-label">NORMAL</span>
-        <span class="difficulty-desc">勝ち筋を狙い、負けを防ぐ</span>
+        <span class="difficulty-desc">CPUはめくったカードを覚えている</span>
     </button>
 </form>
 

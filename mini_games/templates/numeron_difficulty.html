@@ -8,6 +8,17 @@
 <body>
 
 <h1>数字当てゲーム</h1>
+
+<div class="rule-box">
+    <p class="rule-title">遊び方</p>
+    <ul class="rule-list">
+        <li>あなたとCPU、お互いに重複しない3桁の秘密の数字を持っている</li>
+        <li>あなたはCPUの数字を、CPUはあなたの数字を、同時に推理し合う</li>
+        <li>桁も数字も合っていれば EAT、数字だけ合っていれば BITE</li>
+        <li>先に3EAT(完全一致)を出した方が勝ち</li>
+    </ul>
+</div>
+
 <p class="rule-text">難易度を選んでね</p>
 
 <form method="POST" action="{{ url_for('numeron_start') }}" class="difficulty-form">

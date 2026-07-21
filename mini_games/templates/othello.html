@@ -12,6 +12,8 @@
 
 <h1>オセロ</h1>
 
+<p class="score-text">手持ちチップ: {{ chips }} 枚</p>
+
 <p class="rule-text">難易度: {{ "EASY" if difficulty == "easy" else "NORMAL" }}</p>
 
 <p class="score-text">
@@ -63,6 +65,10 @@
         <p class="log-text">{{ msg }}</p>
     {% endfor %}
 </div>
+{% endif %}
+
+{% if reward %}
+<p class="reward-text">💰 +{{ reward }} チップ獲得！</p>
 {% endif %}
 
 {% if winner == "black" %}

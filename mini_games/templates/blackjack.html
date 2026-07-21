@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ブラックジャック</title>
+{% if phase == 'dealer_turn' %}
+<meta http-equiv="refresh" content="1.2;url={{ url_for('blackjack_dealer_step') }}">
+{% endif %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body data-result="{% if result in ['player_win', 'player_blackjack'] %}win{% elif result == 'dealer_win' %}lose{% elif result == 'push' %}draw{% endif %}">
+
+<h1>ブラックジャック</h1>
+
+<p class="score-text">手持ちチップ: {{ chips }} 枚</p>
+
+{% if phase == 'betting' %}
+    <div class="rule-box">
+        <p class="rule-title">遊び方</p>
+        <ul class="rule-list">
+            <li>手札の合計を21に近づけて、ディーラーより強い、または21を超えさせれば勝ち</li>
+            <li>絵札(J・Q・K)は10、Aは1か11の好きな方として数える</li>
+            <li>「ヒット」でカードを1枚引く、「スタンド」でその手札のまま様子を見る</li>
+            <li>21を超えたら「バースト」で自動的に負け</li>
+            <li>最初の2枚でちょうど21なら「ブラックジャック」、配当は賭け金の2.5倍</li>
+            <li>通常の勝ちは賭け金の2倍、引き分け(プッシュ)は賭け金がそのまま戻る</li>
+            <li>ディーラーは手札が17以上になるまで自動的にヒットし続ける</li>
+        </ul>
+    </div>
+
+    <p class="rule-text">賭けるチップ枚数を決めてね。</p>
+    <form method="POST" action="{{ url_for('blackjack_bet') }}" class="guess-form">
+        <input type="number" name="amount" min="1" max="{{ chips }}" value="10" required>
+        <button type="submit" class="guess-btn">賭ける</button>
+    </form>
+
+    {% if chips <= 0 %}
+        <p class="pass-text">チップが尽きちゃったね</p>
+        <a href="{{ url_for('blackjack_bonus') }}" class="reset-link">追加チップをもらう</a>
+    {% endif %}
+{% else %}
+    <p class="rule-text">賭け金: {{ bet }} 枚</p>
+
+    <div class="hand-section">
+        <p class="hand-label">ディーラー {% if reveal_dealer %}({{ dealer_total }}){% endif %}</p>
+        <div class="hand-cards">
+            {% for card in dealer_hand %}
+                {% if loop.first or reveal_dealer %}
+                    <div class="poker-card {{ 'red' if card.suit in ['♥', '♦'] else 'black' }}">
+                        <span>{{ card.rank }}</span><span>{{ card.suit }}</span>
+                    </div>
+                {% else %}
+                    <div class="poker-card hidden"></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="hand-section">
+        <p class="hand-label">あなた ({{ player_total }})</p>
+        <div class="hand-cards">
+            {% for card in player_hand %}
+                <div class="poker-card {{ 'red' if card.suit in ['♥', '♦'] else 'black' }}">
+                    <span>{{ card.rank }}</span><span>{{ card.suit }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if phase == 'player_turn' %}
+        <div class="difficulty-form">
+            <form method="POST" action="{{ url_for('blackjack_hit') }}">
+                <button type="submit" class="guess-btn">ヒット</button>
+            </form>
+            <form method="POST" action="{{ url_for('blackjack_stand') }}">
+                <button type="submit" class="guess-btn">スタンド</button>
+            </form>
+        </div>
+    {% elif phase == 'dealer_turn' %}
+        <p class="pass-text">ディーラーの番です...</p>
+    {% endif %}
+
+    {% if result == 'player_blackjack' %}
+        <div class="result-banner win">ブラックジャック！🎉</div>
+    {% elif result == 'player_win' %}
+        <div class="result-banner win">あなたの勝ち！🎉</div>
+    {% elif result == 'dealer_win' %}
+        <div class="result-banner lose">あなたの負け...😢</div>
+    {% elif result == 'push' %}
+        <div class="result-banner draw">プッシュ（引き分け）</div>
+    {% endif %}
+
+    {% if phase == 'settled' %}
+        <a href="{{ url_for('blackjack_next') }}" class="reset-link">もう一度賭ける</a>
+    {% endif %}
+{% endif %}
+
+<a href="{{ url_for('index') }}" class="reset-link">トップへ戻る</a>
+
+<script src="{{ url_for('static', filename='effects.js') }}"></script>
+</body>
+</html>

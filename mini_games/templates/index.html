@@ -8,6 +8,9 @@
 <body>
 
 <h1>ミニゲーム集</h1>
+
+<p class="score-text">所持チップ: {{ chips }} 枚</p>
+
 <p class="rule-text">遊びたいゲームを選んでね</p>
 
 <div class="game-list">
@@ -27,6 +30,24 @@
         <span class="game-card-icon">⚫</span>
         <span class="game-card-title">オセロ</span>
         <span class="game-card-desc">石を挟んでひっくり返せ</span>
+    </a>
+
+    <a href="{{ url_for('concentration') }}" class="game-card">
+        <span class="game-card-icon">🃏</span>
+        <span class="game-card-title">神経衰弱</span>
+        <span class="game-card-desc">同じ絵柄のペアを探せ</span>
+    </a>
+
+    <a href="{{ url_for('blackjack') }}" class="game-card">
+        <span class="game-card-icon">🃏</span>
+        <span class="game-card-title">ブラックジャック</span>
+        <span class="game-card-desc">21を狙ってディーラーに勝て</span>
+    </a>
+
+    <a href="{{ url_for('slot') }}" class="game-card">
+        <span class="game-card-icon">🎰</span>
+        <span class="game-card-title">スロット</span>
+        <span class="game-card-desc">絵柄を揃えて一攫千金</span>
     </a>
 </div>
 
