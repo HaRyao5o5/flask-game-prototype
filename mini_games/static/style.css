@@ -9,7 +9,9 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 40px 20px;
-    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    background: linear-gradient(135deg, #1a1a2e, #16213e, #1a1a2e);
+    background-size: 200% 200%;
+    animation: bg-drift 18s ease infinite;
     color: #eee;
     font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
 }
@@ -57,11 +59,13 @@ h1 {
 .result-banner.win {
     background: rgba(79, 209, 197, 0.2);
     color: #4fd1c5;
+    animation: bounce-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), win-glow 1.6s ease-in-out 0.4s 2;
 }
 
 .result-banner.lose {
     background: rgba(246, 135, 179, 0.2);
     color: #f687b3;
+    animation: shake-in 0.4s ease;
 }
 
 .result-banner.draw {
@@ -82,7 +86,6 @@ h1 {
     color: #eee;
 }
 
-/* ----- 難易度選択画面 ----- */
 .difficulty-form {
     display: flex;
     gap: 16px;
@@ -90,6 +93,8 @@ h1 {
 }
 
 .difficulty-btn {
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -102,6 +107,23 @@ h1 {
     color: #eee;
     cursor: pointer;
     transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.difficulty-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.difficulty-btn:hover::before {
+    left: 125%;
 }
 
 .difficulty-btn:hover {
@@ -149,6 +171,8 @@ h1 {
 }
 
 .game-card {
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -162,6 +186,23 @@ h1 {
     text-decoration: none;
     color: #eee;
     transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.game-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.game-card:hover::before {
+    left: 125%;
 }
 
 .game-card:hover {
@@ -182,6 +223,15 @@ h1 {
     font-size: 12px;
     color: #a0aec0;
     text-align: center;
+}
+
+.game-card-icon-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 /* ==================================================
@@ -261,6 +311,9 @@ h1 {
 }
 
 .guess-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
     padding: 10px 20px;
     border-radius: 8px;
     border: none;
@@ -268,6 +321,24 @@ h1 {
     color: #1a1a2e;
     font-weight: bold;
     cursor: pointer;
+    text-decoration: none;
+}
+
+.guess-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.guess-btn:hover::before {
+    left: 125%;
 }
 
 .history-table {
@@ -446,6 +517,7 @@ h1 {
     grid-template-columns: repeat(4, 70px);
     grid-gap: 10px;
     margin-top: 12px;
+    perspective: 800px;
 }
 
 .card-grid form {
@@ -481,12 +553,13 @@ button.card.face-down:hover {
 .card.face-up {
     background: rgba(255, 255, 255, 0.08);
     border: 2px solid #4fd1c5;
-    animation: pop-in 0.25s ease;
+    animation: card-reveal 0.35s ease;
 }
 
 .card.face-up.matched {
     border-color: rgba(255, 255, 255, 0.15);
     opacity: 0.5;
+    animation: none;
 }
 
 @media (max-width: 480px) {
@@ -588,6 +661,9 @@ button.card.face-down:hover {
 }
 
 .stop-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
     padding: 6px 16px;
     border-radius: 8px;
     background: rgba(246, 173, 85, 0.15);
@@ -597,6 +673,23 @@ button.card.face-down:hover {
     font-weight: bold;
     text-decoration: none;
     transition: background 0.15s ease;
+}
+
+.stop-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.stop-btn:hover::before {
+    left: 125%;
 }
 
 .stop-btn:hover {
@@ -619,6 +712,10 @@ button.card.face-down:hover {
     overflow: hidden;
     position: relative;
     font-size: 34px;
+}
+
+.slot-cell.spinning {
+    animation: slot-idle-pulse 1s ease-in-out infinite;
 }
 
 .slot-cell.stopped {
@@ -690,7 +787,7 @@ button.card.face-down:hover {
     justify-content: center;
     font-size: 32px;
     font-weight: bold;
-    animation: pop-in 0.3s ease;
+    animation: die-tumble 0.4s ease;
 }
 
 .cup-area {
@@ -700,10 +797,11 @@ button.card.face-down:hover {
 .cup {
     font-size: 72px;
     display: inline-block;
+    animation: cup-idle-glow 2.4s ease-in-out infinite;
 }
 
 .cup.shaking {
-    animation: cup-shake 0.3s ease-in-out infinite;
+    animation: cup-shake 0.3s ease-in-out infinite, cup-idle-glow 2.4s ease-in-out infinite;
 }
 
 @keyframes cup-shake {
@@ -712,6 +810,15 @@ button.card.face-down:hover {
     }
     50% {
         transform: rotate(8deg) translateX(4px);
+    }
+}
+
+@keyframes cup-idle-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 0 rgba(79, 209, 197, 0));
+    }
+    50% {
+        filter: drop-shadow(0 0 16px rgba(79, 209, 197, 0.5));
     }
 }
 
@@ -726,10 +833,11 @@ button.card.face-down:hover {
 .wheel {
     font-size: 80px;
     display: inline-block;
+    animation: wheel-idle-glow 2.4s ease-in-out infinite;
 }
 
 .wheel.spinning {
-    animation: wheel-spin 0.8s linear infinite;
+    animation: wheel-spin 0.8s linear infinite, wheel-idle-glow 2.4s ease-in-out infinite;
 }
 
 @keyframes wheel-spin {
@@ -738,6 +846,15 @@ button.card.face-down:hover {
     }
     to {
         transform: rotate(360deg);
+    }
+}
+
+@keyframes wheel-idle-glow {
+    0%, 100% {
+        filter: drop-shadow(0 0 0 rgba(157, 124, 255, 0));
+    }
+    50% {
+        filter: drop-shadow(0 0 16px rgba(157, 124, 255, 0.45));
     }
 }
 
@@ -751,7 +868,7 @@ button.card.face-down:hover {
     font-size: 36px;
     font-weight: bold;
     color: #fff;
-    animation: pop-in 0.3s ease;
+    animation: die-tumble 0.35s ease;
 }
 
 .result-number.red {
@@ -788,12 +905,31 @@ button.card.face-down:hover {
 }
 
 .bet-btn {
+    position: relative;
+    overflow: hidden;
     padding: 10px 20px;
     border-radius: 8px;
     border: none;
     font-weight: bold;
     cursor: pointer;
     margin: 0 4px;
+}
+
+.bet-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.bet-btn:hover::before {
+    left: 125%;
 }
 
 .bet-btn.red {
@@ -850,6 +986,9 @@ button.card.face-down:hover {
 }
 
 .hold-btn {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
     padding: 6px 14px;
     border-radius: 8px;
     background: rgba(255, 255, 255, 0.08);
@@ -859,6 +998,23 @@ button.card.face-down:hover {
     font-weight: bold;
     text-decoration: none;
     transition: background 0.15s ease;
+}
+
+.hold-btn::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -75%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transform: skewX(-20deg);
+    transition: left 0.5s ease;
+    pointer-events: none;
+}
+
+.hold-btn:hover::before {
+    left: 125%;
 }
 
 .hold-btn.active {
@@ -905,3 +1061,83 @@ button.card.face-down:hover {
         background: transparent;
     }
 }
+
+@keyframes bg-drift {
+    0%, 100% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+@keyframes win-glow {
+    0%, 100% {
+        box-shadow: 0 0 0 rgba(79, 209, 197, 0);
+    }
+    50% {
+        box-shadow: 0 0 24px rgba(79, 209, 197, 0.6);
+    }
+}
+
+@keyframes shake-in {
+    0% {
+        transform: translateX(0);
+        opacity: 0;
+    }
+    20% {
+        transform: translateX(-8px);
+        opacity: 1;
+    }
+    40% {
+        transform: translateX(8px);
+    }
+    60% {
+        transform: translateX(-5px);
+    }
+    80% {
+        transform: translateX(5px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
+
+@keyframes card-reveal {
+    from {
+        transform: rotateY(90deg) scale(0.85);
+        opacity: 0;
+    }
+    to {
+        transform: rotateY(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes die-tumble {
+    from {
+        transform: rotate(-25deg) scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes slot-idle-pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.15);
+    }
+    50% {
+        box-shadow: 0 0 14px rgba(79, 209, 197, 0.35);
+    }
+}
+
+/* @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+} */

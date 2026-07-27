@@ -15,19 +15,19 @@
 
 <div class="game-list">
     <a href="{{ url_for('tictactoe') }}" class="game-card">
-        <span class="game-card-icon">⭕</span>
+        <img src="{{ url_for('static', filename='icons/tictactoe.jpg') }}" class="game-card-icon-img" alt="○×ゲーム">
         <span class="game-card-title">○×ゲーム</span>
         <span class="game-card-desc">シンプルな三目並べ</span>
     </a>
 
     <a href="{{ url_for('numeron') }}" class="game-card">
-        <span class="game-card-icon">🔢</span>
+        <img src="{{ url_for('static', filename='icons/numeron.png') }}" class="game-card-icon-img" alt="数字当てゲーム">
         <span class="game-card-title">数字当てゲーム</span>
         <span class="game-card-desc">3桁の数字を推理せよ</span>
     </a>
 
     <a href="{{ url_for('othello') }}" class="game-card">
-        <span class="game-card-icon">⚫</span>
+        <img src="{{ url_for('static', filename='icons/othello.jpg') }}" class="game-card-icon-img" alt="オセロ">
         <span class="game-card-title">オセロ</span>
         <span class="game-card-desc">石を挟んでひっくり返せ</span>
     </a>
